@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推理小说灵感生成器</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --primary: #f5f5f7;
+            --secondary: #ffffff;
+            --accent: #007aff;
+            --text: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
+            --transition-time: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.5;
+        }
+
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: var(--secondary);
+            padding: 5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            margin-bottom: 5rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent), #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.7rem;
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 3rem;
+            flex: 1;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-bottom: 6rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        button {
+            background-color: var(--accent);
+            color: var(--secondary);
+            border: none;
+            padding: 1.3rem 3rem;
+            border-radius: 980px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 500;
+            transition: all var(--transition-time) ease;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background-color: #0062cc;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px var(--shadow-medium);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity var(--transition-time) ease;
+        }
+
+        button:hover::before {
+            opacity: 1;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 3.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--secondary);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            transition: all var(--transition-time) ease;
+            transform: scale(0.95);
+            opacity: 0;
+            animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+        }
+
+        @keyframes cardFadeIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+
+        .card-title {
+            font-size: 2rem;
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent);
+            border-radius: 2px;
+        }
+
+        .card-content {
+            color: var(--text-secondary);
+            font-size: 1.3rem;
+            line-height: 1.8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 6rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* 加载动画 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-time) ease;
+        }
+
+        .loader.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--shadow-light);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .loader-spinner::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 3px solid transparent;
+            border-top-color: rgba(0, 122, 255, 0.5);
+            border-radius: 50%;
+            animation: spin 2s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.8rem;
+            }
+
+            .subtitle {
+                font-size: 1.4rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+                gap: 2rem;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <header>
+        <h1>推理小说灵感生成器</h1>
+        <p class="subtitle">从精心设计的元素中获取创作灵感</p>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <button id="generateAll">生成完整案件</button>
+            <button id="generateRandom">随机生成一项</button>
+            <button id="resetAll">重置所有</button>
+        </div>
+
+        <div class="results" id="results">
+            <!-- 结果将在这里动态生成 -->
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 推理小说灵感生成器 | 灵感源于逻辑与想象的碰撞
+    </footer>
+
+    <script>
+        // 数据源
+        const data = {
+            caseTypes: [
+                "密室杀人（机械诡计/心理误导）",
+                "连环失踪（社会边缘化群体）",
+                "纵火案（掩盖证据/情感宣泄）",
+                "坠楼事件（伪装意外/仪式感）",
+                "完美犯罪（反向操控）",
+                "毒杀案（延时装置）",
+                "模仿犯（文化符号误导）",
+                "消失的凶器（日常物品变形）",
+                "不在场证明（时间错位）",
+                "心理控制（群体催眠）"
+            ],
+            coreConflicts: [
+                "教育资源分配（重点校vs普通校）",
+                "科技伦理（AI监控系统）",
+                "环境破坏（化工污染）",
+                "媒体暴力（网络审判）",
+                "职场压迫（996制度）",
+                "医疗黑幕（器官移植链）",
+                "性别歧视（职场天花板）",
+                "阶级固化（学区房绑架）",
+                "网络暴力（人肉搜索）",
+                "文化冲突（非遗传承）"
+            ],
+            socialIssues: [
+                "AI监控导致的隐私泄露",
+                "基因编辑技术滥用",
+                "校园贷引发的连环悲剧",
+                "代际观念冲突",
+                "网红经济泡沫",
+                "学术造假产业链",
+                "动物保护极端化",
+                "非法移民生存困境",
+                "地下器官贩卖",
+                "非遗技艺消失危机"
+            ],
+            keyItems: [
+                "加密U盘（储存黑幕证据）",
+                "智能手表（死亡时间误导）",
+                "老式相机（胶卷暗藏密码）",
+                "纹身贴纸（身份伪装）",
+                "录音笔（伪造对话）",
+                "古籍残页（仪式杀人线索）",
+                "变色墨水（时间标记）",
+                "旅行支票（跨国洗钱）",
+                "密码本（双重加密）",
+                "医疗档案（病史误导）"
+            ],
+            misleadingClues: [
+                "假遗书（笔迹模仿）",
+                "监控盲区（光影错位）",
+                "误导性伤痕（二次伤害）",
+                "错误时间线（时区混淆）",
+                "替罪羊（心理暗示）",
+                "重复作案手法（转移视线）",
+                "矛盾证词（集体记忆偏差）",
+                "伪造证据（科学鉴定漏洞）",
+                "心理暗示（群体癔症）",
+                "符号陷阱（文化误读）"
+            ],
+            endingTwists: [
+                "凶手是受害者（自导自演）",
+                "凶手是执法者（体制庇护）",
+                "凶手是群体（沉默共谋）",
+                "凶手自杀谢罪（真相陪葬）",
+                "真相被掩盖（舆论操控）",
+                "凶手有苦衷（道德困境）",
+                "证据被篡改（技术黑箱）",
+                "凶手是未成年人（保护机制）",
+                "凶手是人工智能（程序失控）",
+                "凶手是预言家（预知未来）"
+            ]
+        };
+
+        // DOM元素
+        const resultsContainer = document.getElementById('results');
+        const generateAllBtn = document.getElementById('generateAll');
+        const generateRandomBtn = document.getElementById('generateRandom');
+        const resetAllBtn = document.getElementById('resetAll');
+        const loader = document.getElementById('loader');
+
+        // 生成随机项
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // 创建卡片
+        function createCard(title, content) {
+            const card = document.createElement('div');
+            card.classList.add('card');
+
+            const cardTitle = document.createElement('h3');
+            cardTitle.classList.add('card-title');
+            cardTitle.textContent = title;
+
+            const cardContent = document.createElement('p');
+            cardContent.classList.add('card-content');
+            cardContent.textContent = content;
+
+            card.appendChild(cardTitle);
+            card.appendChild(cardContent);
+
+            return card;
+        }
+
+        // 生成所有卡片
+        function generateAllCards() {
+            loader.classList.add('active');
+            resultsContainer.innerHTML = '';
+
+            const cards = [
+                { title: '案件类型', content: getRandomItem(data.caseTypes) },
+                { title: '核心矛盾', content: getRandomItem(data.coreConflicts) },
+                { title: '社会议题', content: getRandomItem(data.socialIssues) },
+                { title: '关键物品', content: getRandomItem(data.keyItems) },
+                { title: '误导性线索', content: getRandomItem(data.misleadingClues) },
+                { title: '结局反转', content: getRandomItem(data.endingTwists) }
+            ];
+
+            cards.forEach(cardData => {
+                const card = createCard(cardData.title, cardData.content);
+                resultsContainer.appendChild(card);
+            });
+
+            setTimeout(() => loader.classList.remove('active'), 1000);
+        }
+
+        // 生成随机一项
+        function generateRandomCard() {
+            loader.classList.add('active');
+            resultsContainer.innerHTML = '';
+
+            const categories = [
+                { name: '案件类型', items: data.caseTypes },
+                { name: '核心矛盾', items: data.coreConflicts },
+                { name: '社会议题', items: data.socialIssues },
+                { name: '关键物品', items: data.keyItems },
+                { name: '误导性线索', items: data.misleadingClues },
+                { name: '结局反转', items: data.endingTwists }
+            ];
+
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            const randomItem = getRandomItem(randomCategory.items);
+
+            const card = createCard(randomCategory.name, randomItem);
+            resultsContainer.appendChild(card);
+
+            setTimeout(() => loader.classList.remove('active'), 800);
+        }
+
+        // 重置所有
+        function resetAll() {
+            resultsContainer.innerHTML = `
+                <div class="card">
+                    <h3 class="card-title">欢迎</h3>
+                    <p class="card-content">点击按钮生成推理小说创作灵感</p>
+                </div>
+            `;
+        }
+
+        // 事件监听
+        generateAllBtn.addEventListener('click', generateAllCards);
+        generateRandomBtn.addEventListener('click', generateRandomCard);
+        resetAllBtn.addEventListener('click', resetAll);
+
+        // 初始化
+        window.addEventListener('load', () => {
+            resultsContainer.innerHTML = `
+                <div class="card">
+                    <h3 class="card-title">欢迎</h3>
+                    <p class="card-content">点击按钮生成推理小说创作灵感</p>
+                </div>
+            `;
+        });
+    </script>
+</body>
+
+</html>
+    
